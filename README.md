@@ -13,4 +13,4 @@ using Spark Streaming.
 
 ## Architecture
 
-![architecture](architecture.png)
+![architecture](architecture_old.png)

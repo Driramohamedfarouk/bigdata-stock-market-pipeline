@@ -5,6 +5,9 @@ import org.apache.spark.SparkConf
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 object FilterHighVolume {
   def main(args: Array[String]): Unit = {
     if (args.length < 4) {
@@ -13,7 +16,7 @@ object FilterHighVolume {
     }
 
     val sparkConf = new SparkConf().setAppName("SparkKafkaDailyRange").
-      set("spark.cassandra.connection.host","172.18.0.5")
+      set("spark.cassandra.connection.host","cassandra")
 
     // Create the streaming context with a batch size of 2 seconds
     val ssc = new StreamingContext(sparkConf, Seconds(2))
@@ -27,14 +30,16 @@ object FilterHighVolume {
 
     val highVolumeLines = lines.filter(line => {
       val values = line.split(",")
-      val volume = values(4).toDouble
-      volume > 600000
+      val volume = values(3).toDouble
+      volume > 60000
     })
     highVolumeLines.print()
     highVolumeLines.map(line=>{
-      var arr = line.split(",");
-      (arr(0),arr(1))
-    }).saveToCassandra("finance","high_volume")
+      val arr = line.split(",");
+      val date = java.time.LocalDate.parse(arr(0), DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+      val eventDateCassandra = com.datastax.driver.core.LocalDate.fromMillisSinceEpoch(date.atStartOfDay(ZoneId.systemDefault()).toInstant.toEpochMilli)
+      ("99051fe9-6a9c-46c2-b949-38ef78858dd0",eventDateCassandra,arr(3).toDouble)
+    }).saveToCassandra("finance","high_volume_aapl")
 
     ssc.start()
     ssc.awaitTermination()
