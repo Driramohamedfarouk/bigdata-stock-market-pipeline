@@ -14,3 +14,7 @@ using Spark Streaming.
 ## Architecture
 
 ![architecture](architecture.png)
+
+
+## Demo 
+[Screencast from 10-05-23 23:51:35.webm](https://github.com/Driramohamedfarouk/bigdata-stock-market-pipeline/assets/79766774/55bd2198-4a56-45fc-908c-3816fb2f2d21)
